@@ -1,0 +1,27 @@
+export type Holding = {
+    symbol: string;
+    quantity: number;
+    averageCost: number;
+};
+
+export type SellPreview = {
+    symbol: string;
+    quantity: number;
+    price: number;
+    estimatedProceeds: number;
+};
+
+export type StockQuote = {
+    symbol: string;
+    name: string;
+    exchange: string;
+    currency: string;
+    close: number;
+    change: number;
+    percent_change: number;
+};
+
+export type TickerPrice = {
+    symbol: string;
+    price: number;
+};
