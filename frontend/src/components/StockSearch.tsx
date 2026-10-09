@@ -2,6 +2,7 @@ import type { StockQuote } from '@/types';
 import { useState } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 export default function StockSearch() {
     const [symbol, setSymbol] = useState<string>('');
@@ -37,32 +38,40 @@ export default function StockSearch() {
     };
 
     return (
-        <div className={'space-y-2'}>
-            <h2>Stock Lookup</h2>
-            <Input
-                placeholder={'Symbol'}
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
-            />
-            <Button className={'w-full'} onClick={lookupStock}>
-                Search
-            </Button>
+        <Card className='min-h-40 self-start'>
+            <CardHeader>
+                <CardTitle>
+                    <h2>Stock Lookup</h2>
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className='space-y-2'>
+                    <Input
+                        placeholder={'Symbol'}
+                        value={symbol}
+                        onChange={(e) => setSymbol(e.target.value)}
+                    />
+                    <Button className={'w-full'} onClick={lookupStock}>
+                        Search
+                    </Button>
 
-            {error !== null && (
-                <div>
-                    <p className='text-destructive'>{error}</p>
+                    {error !== null && (
+                        <div>
+                            <p className='text-destructive'>{error}</p>
+                        </div>
+                    )}
+                    {quote !== null && (
+                        <div>
+                            <h3>{quote.name}</h3>
+                            <p>
+                                {quote.symbol} · {quote.exchange}
+                            </p>
+                            <p>Quote price: ${quote.close.toFixed(2)}</p>
+                            <p>Change: {quote.percent_change.toFixed(2)}%</p>
+                        </div>
+                    )}
                 </div>
-            )}
-            {quote !== null && (
-                <div>
-                    <h3>{quote.name}</h3>
-                    <p>
-                        {quote.symbol} · {quote.exchange}
-                    </p>
-                    <p>Quote price: ${quote.close.toFixed(2)}</p>
-                    <p>Change: {quote.percent_change.toFixed(2)}%</p>
-                </div>
-            )}
-        </div>
+            </CardContent>
+        </Card>
     );
 }

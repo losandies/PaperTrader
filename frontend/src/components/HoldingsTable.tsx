@@ -10,9 +10,13 @@ import {
 
 type HoldingsTableProps = {
     holdings: Holding[];
+    onSelectHolding: (holding: string) => void;
 };
 
-export default function HoldingsTable({ holdings }: HoldingsTableProps) {
+export default function HoldingsTable({
+    holdings,
+    onSelectHolding,
+}: HoldingsTableProps) {
     return (
         <Table>
             <TableHeader>
@@ -24,7 +28,11 @@ export default function HoldingsTable({ holdings }: HoldingsTableProps) {
             </TableHeader>
             <TableBody>
                 {holdings.map((holding) => (
-                    <TableRow key={holding.symbol}>
+                    <TableRow
+                        key={holding.symbol}
+                        onClick={() => onSelectHolding(holding.symbol)}
+                        className='cursor-pointer'
+                    >
                         <TableCell>{holding.symbol}</TableCell>
                         <TableCell>{holding.quantity}</TableCell>
                         <TableCell>${holding.averageCost.toFixed(2)}</TableCell>

@@ -4,6 +4,11 @@ export type Holding = {
     averageCost: number;
 };
 
+export type Portfolio = {
+    cashBalance: number;
+    holdings: Holding[];
+};
+
 export type SellPreview = {
     symbol: string;
     quantity: number;

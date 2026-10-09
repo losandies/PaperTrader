@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Button } from './components/ui/button';
-import type { Holding } from './types';
-import HoldingsTable from './components/HoldingsTable';
+import type { Portfolio } from './types';
 import TradePanel from './components/TradePanel';
 import StockSearch from './components/StockSearch';
 import TickerStrip from './components/TickerStrip';
-
-type Portfolio = {
-    cashBalance: number;
-    holdings: Holding[];
-};
+import PortfolioPanel from './components/PortfolioPanel';
+import HoldingDetailsPanel from './components/HoldingDetailsPanel';
 
 function App() {
     const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
 
     const loadPortfolio = (): void => {
         fetch('http://localhost:8080/accounts/1/portfolio')
@@ -40,27 +36,33 @@ function App() {
     if (portfolio == null) {
         return <p>Loading Portfolio...</p>;
     }
-    return (
-        <main className='mx-auto max-w-6xl space-y-6 p-6 w-[80%]'>
-            <TickerStrip />
-            <h1 className='text-3xl font-semibold'>Paper Trading</h1>
-            {portfolio && (
-                <div className='space-y-2'>
-                    <Button
-                        className='w-full'
-                        variant={'outline'}
-                        onClick={loadPortfolio}
-                    >
-                        Refresh portfolio
-                    </Button>
-                    <p>Cash balance: ${portfolio.cashBalance.toFixed(2)}</p>
 
-                    <HoldingsTable holdings={portfolio.holdings} />
+    const selectedHolding = portfolio.holdings.find(
+        (holding) => holding.symbol === selectedSymbol,
+    );
+    return (
+        <>
+            <TickerStrip />
+            <div className='px-10'>
+                <h1 className='text-3xl font-semibold my-6'>Paper Trading</h1>
+                <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+                    <div className='space-y-6'>
+                        <PortfolioPanel
+                            portfolio={portfolio}
+                            loadPortfolio={loadPortfolio}
+                            onSelectHolding={setSelectedSymbol}
+                        />
+                        <TradePanel onTradeSuccess={loadPortfolio} />
+                    </div>
+                    <div className='space-y-6'>
+                        <StockSearch />
+                        {selectedHolding && (
+                            <HoldingDetailsPanel holding={selectedHolding} />
+                        )}
+                    </div>
                 </div>
-            )}
-            <StockSearch />
-            <TradePanel onTradeSuccess={loadPortfolio} />
-        </main>
+            </div>
+        </>
     );
 }
 

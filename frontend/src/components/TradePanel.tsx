@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import type { SellPreview } from '@/types';
@@ -111,7 +111,11 @@ export default function TradePanel({ onTradeSuccess }: TradePanelProps) {
     return (
         <>
             <Card>
-                <CardHeader>Trade Panel</CardHeader>
+                <CardHeader>
+                    <CardTitle>
+                        <h2>Trade Panel</h2>
+                    </CardTitle>
+                </CardHeader>
                 <CardContent className='space-y-2'>
                     <Input
                         type='text'

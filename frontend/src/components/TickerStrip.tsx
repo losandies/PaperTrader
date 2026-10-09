@@ -43,19 +43,24 @@ export default function TickerStrip() {
             })
             .finally(() => setIsLoading(false));
     };
+
+    const displayPrices = [...tickerPrice, ...tickerPrice, ...tickerPrice];
+
     return (
         <>
             {tickerPrice.length === 0 && (
                 <p className='text-sm text-muted-foreground'>
-                    {isLoading ? 'Loading prices...' : 'Load prices to display the ticker.'}
+                    {isLoading
+                        ? 'Loading prices...'
+                        : 'Load prices to display the ticker.'}
                 </p>
             )}
             <div className='overflow-hidden border-b py-3'>
                 <div className='ticker-track flex w-max'>
                     <div className='flex shrink-0 gap-6 pr-6'>
-                        {tickerPrice.map((ticker) => (
+                        {displayPrices.map((ticker, index) => (
                             <span
-                                key={ticker.symbol}
+                                key={`${ticker.symbol}-${index}`}
                                 className='shrink-0 text-gray-400'
                             >
                                 {ticker.symbol}: ${ticker.price.toFixed(2)}
@@ -66,9 +71,9 @@ export default function TickerStrip() {
                         aria-hidden='true'
                         className='flex shrink-0 gap-6 pr-6'
                     >
-                        {tickerPrice.map((ticker) => (
+                        {displayPrices.map((ticker, index) => (
                             <span
-                                key={ticker.symbol}
+                                key={`${ticker.symbol}-${index}`}
                                 className='shrink-0 text-gray-400'
                             >
                                 {ticker.symbol}: ${ticker.price.toFixed(2)}
@@ -77,10 +82,10 @@ export default function TickerStrip() {
                     </div>
                 </div>
             </div>
-            <Button disabled={isLoading} onClick={loadPrices}>
+            <Button className='mt-4' disabled={isLoading} onClick={loadPrices}>
                 {isLoading ? 'Loading...' : 'Load Prices'}
             </Button>
-            {error && <p role="alert">{error}</p>}
+            {error && <p role='alert'>{error}</p>}
         </>
     );
 }
