@@ -57,7 +57,10 @@ function App() {
                     <div className='space-y-6'>
                         <StockSearch />
                         {selectedHolding && (
-                            <HoldingDetailsPanel holding={selectedHolding} />
+                            <HoldingDetailsPanel
+                                holding={selectedHolding}
+                                key={selectedHolding.symbol}
+                            />
                         )}
                     </div>
                 </div>
