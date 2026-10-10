@@ -19,6 +19,11 @@ export default function HoldingDetailsPanel({
 
     const unrealizedPL = marketValue === null ? null : marketValue - costBasis;
 
+    const returnPercentage =
+        unrealizedPL === null || costBasis === 0
+            ? null
+            : (unrealizedPL / costBasis) * 100;
+
     useEffect(() => {
         fetch(
             `http://localhost:8080/stocks/${encodeURIComponent(holding.symbol)}/price`,
@@ -56,12 +61,11 @@ export default function HoldingDetailsPanel({
             <CardContent className='space-y-2'>
                 <p>
                     Shares: {holding.quantity} @ $
-                    {holding.averageCost.toFixed(2)}/per
+                    {holding.averageCost.toFixed(2)}/per share
                 </p>
                 <p>Cost basis: ${costBasis.toFixed(2)}</p>
                 {isLoading && <p>Loading current price...</p>}
                 {error !== null && <p className='text-destructive'>{error}</p>}
-
                 {!isLoading && error == null && currentPrice !== null && (
                     <p>Current price: ${currentPrice.toFixed(2)}</p>
                 )}
@@ -73,10 +77,15 @@ export default function HoldingDetailsPanel({
                         className={
                             unrealizedPL > 0
                                 ? 'text-green-500'
-                                : 'text-destructive'
+                                : unrealizedPL < 0
+                                  ? 'text-destructive'
+                                  : ''
                         }
                     >
                         Unrealized P/L: ${unrealizedPL.toFixed(2)}
+                        {returnPercentage !== null && (
+                            <> ({returnPercentage.toFixed(2)}%)</>
+                        )}
                     </p>
                 )}
             </CardContent>
