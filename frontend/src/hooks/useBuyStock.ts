@@ -1,16 +1,30 @@
+import type { BuyPreview } from '@/types';
 import { useState } from 'react';
 
 export function useBuyStock(onTradeSuccess: () => void) {
     const [tradeError, setTradeError] = useState<string | null>(null);
     const [isBuying, setIsBuying] = useState<boolean>(false);
 
-    const buyStock = (symbol: string, quantity: number): Promise<boolean> => {
+    const [buyPreview, setBuyPreview] = useState<BuyPreview | null>(null);
+
+    const previewBuy = (symbol: string, quantity: number, price: number): void => {
+        if (isBuying) return;
+        setTradeError(null);
+        setBuyPreview({ symbol, quantity, price, estimatedCost: quantity * price });
+    };
+
+    const cancelPreview = (): void => {
+        if (!isBuying) setBuyPreview(null);
+    };
+
+    const buyStock = (): Promise<boolean> => {
+        if (buyPreview === null || isBuying) return Promise.resolve(false);
         setTradeError(null);
         setIsBuying(true);
 
         const params = new URLSearchParams({
-            symbol,
-            quantity: quantity.toString(),
+            symbol: buyPreview.symbol,
+            quantity: buyPreview.quantity.toString(),
         });
 
         return fetch(`http://localhost:8080/accounts/1/buy?${params}`, {
@@ -24,6 +38,7 @@ export function useBuyStock(onTradeSuccess: () => void) {
                 }
 
                 onTradeSuccess();
+                setBuyPreview(null);
                 return true;
             })
             .catch((error: unknown) => {
@@ -37,5 +52,5 @@ export function useBuyStock(onTradeSuccess: () => void) {
             .finally(() => setIsBuying(false));
     };
 
-    return { buyStock, tradeError, isBuying };
+    return { previewBuy, buyStock, buyPreview, cancelPreview, tradeError, isBuying };
 }

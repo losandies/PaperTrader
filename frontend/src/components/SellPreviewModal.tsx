@@ -82,7 +82,7 @@ export default function SellPreviewModal({
                     <p className='text-sm text-destructive'>{tradeError}</p>
                 )}
                 <DialogFooter>
-                    <Button onClick={onCancel} variant={'outline'}>
+                    <Button onClick={onCancel} variant={'outline'} disabled={isSelling}>
                         Cancel
                     </Button>
                     <Button onClick={onConfirm} disabled={isSelling}>

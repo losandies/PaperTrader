@@ -1,4 +1,4 @@
-import type { BuyPreview, StockQuote } from '@/types';
+import type { StockQuote } from '@/types';
 import { useState } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -12,14 +12,13 @@ type StockSearchProps = {
 };
 
 export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
-    const { buyStock, tradeError, isBuying } = useBuyStock(onTradeSuccess);
+    const { previewBuy, buyStock, buyPreview, cancelPreview, tradeError, isBuying } = useBuyStock(onTradeSuccess);
 
     const [symbol, setSymbol] = useState<string>('');
     const [quote, setQuote] = useState<StockQuote | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [quantity, setQuantity] = useState<number>(1);
 
-    const [buyPreview, setBuyPreview] = useState<BuyPreview | null>(null);
 
     const lookupStock = (): void => {
         setError(null);
@@ -52,13 +51,9 @@ export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
     const confirmBuy = async (): Promise<void> => {
         if (buyPreview == null || isBuying) return;
 
-        const succeeded = await buyStock(
-            buyPreview.symbol,
-            buyPreview.quantity,
-        );
+        const succeeded = await buyStock();
 
         if (succeeded) {
-            setBuyPreview(null);
             setQuantity(1);
         }
     };
@@ -72,7 +67,7 @@ export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
             <CardContent>
                 <BuyPreviewModal
                     preview={buyPreview}
-                    onCancel={() => setBuyPreview(null)}
+                    onCancel={cancelPreview}
                     onConfirm={confirmBuy}
                     isBuying={isBuying}
                     tradeError={tradeError}
@@ -151,13 +146,7 @@ export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
                                     variant={'outline'}
                                     className='w-18 h-10 ml-2 cursor-pointer'
                                     onClick={() => {
-                                        setBuyPreview({
-                                            symbol: quote.symbol,
-                                            quantity,
-                                            price: quote.close,
-                                            estimatedCost:
-                                                quantity * quote.close,
-                                        });
+                                        previewBuy(quote.symbol, quantity, quote.close);
                                     }}
                                 >
                                     BUY

@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import type { BuyPreview, TradeSelection } from '@/types';
+import type { TradeSelection } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { RxCaretDown, RxCaretUp } from 'react-icons/rx';
 import { useBuyStock } from '@/hooks/useBuyStock';
+import { useSellStock } from '@/hooks/useSellStock';
 import BuyPreviewModal from './BuyPreviewModal';
+import SellPreviewModal from './SellPreviewModal';
 
 type TradePanelProps = {
     selection: TradeSelection;
@@ -17,20 +19,53 @@ export default function TradePanel({
     onClose,
     onTradeSuccess,
 }: TradePanelProps) {
+    const {
+        previewBuy,
+        buyStock,
+        buyPreview,
+        cancelPreview: cancelBuyPreview,
+        isBuying,
+        tradeError: buyError,
+    } = useBuyStock(onTradeSuccess);
+    const {
+        previewSell,
+        sellStock,
+        sellPreview,
+        cancelPreview: cancelSellPreview,
+        tradeError: sellError,
+        isSelling,
+    } = useSellStock(onTradeSuccess);
+
     const [quantity, setQuantity] = useState<number>(1);
-    const [buyPreview, setBuyPreview] = useState<BuyPreview | null>(null);
-    const { buyStock, isBuying, tradeError } = useBuyStock(onTradeSuccess);
+
+    const isBusy = isBuying || isSelling;
+
+    const openPreview = (): void => {
+        if (isBusy) return;
+
+        if (selection.mode === 'Sell') {
+            previewSell(selection.symbol, quantity);
+        } else {
+            previewBuy(selection.symbol, quantity, selection.price);
+        }
+    };
 
     const confirmBuy = async (): Promise<void> => {
-        if (buyPreview === null || isBuying) return;
+        if (buyPreview === null || isBusy) return;
 
-        const succeeded = await buyStock(
-            buyPreview.symbol,
-            buyPreview.quantity,
-        );
+        const succeeded = await buyStock();
 
         if (succeeded) {
-            setBuyPreview(null);
+            onClose();
+        }
+    };
+
+    const confirmSell = async (): Promise<void> => {
+        if (sellPreview === null || isBusy) return;
+
+        const succeeded = await sellStock();
+
+        if (succeeded) {
             onClose();
         }
     };
@@ -60,6 +95,7 @@ export default function TradePanel({
                                 aria-label='Increase quantity'
                                 className='flex h-6 w-9 items-center justify-center p-0 cursor-pointer'
                                 onClick={() => setQuantity((q) => q + 1)}
+                                disabled={isBusy}
                             >
                                 <RxCaretUp className='text-4xl text-gray-300 hover:text-foreground' />
                             </button>
@@ -70,6 +106,7 @@ export default function TradePanel({
                                 onClick={() =>
                                     setQuantity((q) => Math.max(1, q - 1))
                                 }
+                                disabled={isBusy}
                             >
                                 <RxCaretDown className='text-4xl text-gray-300 hover:text-foreground' />
                             </button>
@@ -83,35 +120,40 @@ export default function TradePanel({
                         <Button
                             variant='outline'
                             className='w-18 h-10 ml-2'
-                            disabled={isBuying || selection.mode === 'Sell'}
-                            onClick={() => {
-                                setBuyPreview({
-                                    symbol: selection.symbol,
-                                    quantity,
-                                    price: selection.price,
-                                    estimatedCost: quantity * selection.price,
-                                });
-                            }}
+                            disabled={isBusy}
+                            onClick={openPreview}
                         >
                             {selection.mode.toUpperCase()}
                         </Button>
                     </div>
                 </div>
+                {sellPreview === null && sellError !== null && (
+                    <p role='alert' className='text-destructive'>
+                        {sellError}
+                    </p>
+                )}
                 <Button
                     type='button'
                     variant='outline'
                     onClick={onClose}
-                    disabled={isBuying}
+                    disabled={isBusy}
                 >
                     Close
                 </Button>
             </CardContent>
             <BuyPreviewModal
                 preview={buyPreview}
-                onCancel={() => setBuyPreview(null)}
-                tradeError={tradeError}
+                onCancel={cancelBuyPreview}
+                tradeError={buyError}
                 onConfirm={confirmBuy}
                 isBuying={isBuying}
+            />
+            <SellPreviewModal
+                preview={sellPreview}
+                onCancel={cancelSellPreview}
+                tradeError={sellError}
+                onConfirm={confirmSell}
+                isSelling={isSelling}
             />
         </Card>
     );
