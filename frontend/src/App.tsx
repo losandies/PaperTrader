@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { Portfolio } from './types';
-import TradePanel from './components/TradePanel';
 import StockSearch from './components/StockSearch';
 import TickerStrip from './components/TickerStrip';
 import PortfolioPanel from './components/PortfolioPanel';
@@ -52,10 +51,10 @@ function App() {
                             loadPortfolio={loadPortfolio}
                             onSelectHolding={setSelectedSymbol}
                         />
-                        <TradePanel onTradeSuccess={loadPortfolio} />
+                        {/* <TradePanel onTradeSuccess={loadPortfolio} /> */}
                     </div>
                     <div className='space-y-6'>
-                        <StockSearch />
+                        <StockSearch onTradeSuccess={loadPortfolio} />
                         {selectedHolding && (
                             <HoldingDetailsPanel
                                 holding={selectedHolding}

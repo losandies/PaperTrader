@@ -16,6 +16,13 @@ export type SellPreview = {
     estimatedProceeds: number;
 };
 
+export type BuyPreview = {
+    symbol: string;
+    quantity: number;
+    price: number;
+    estimatedCost: number;
+};
+
 export type StockQuote = {
     symbol: string;
     name: string;
