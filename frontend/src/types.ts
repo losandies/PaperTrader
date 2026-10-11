@@ -37,3 +37,9 @@ export type TickerPrice = {
     symbol: string;
     price: number;
 };
+
+export type TradeSelection = {
+    symbol: string;
+    price: number;
+    mode: 'Buy' | 'Sell';
+};

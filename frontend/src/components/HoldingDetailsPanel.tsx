@@ -1,13 +1,22 @@
-import type { Holding } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import type { Holding, TradeSelection } from '@/types';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from './ui/card';
 import { useEffect, useState } from 'react';
+import { Button } from './ui/button';
 
 type HoldingDetailsPanelProps = {
     holding: Holding;
+    onOpenTrade: (selection: TradeSelection) => void;
 };
 
 export default function HoldingDetailsPanel({
     holding,
+    onOpenTrade,
 }: HoldingDetailsPanelProps) {
     const costBasis = holding.quantity * holding.averageCost;
     const [currentPrice, setCurrentPrice] = useState<number | null>(null);
@@ -56,7 +65,8 @@ export default function HoldingDetailsPanel({
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{holding.symbol} Details</CardTitle>
+                <CardTitle>Holding Details</CardTitle>
+                <CardDescription>{holding.symbol}</CardDescription>
             </CardHeader>
             <CardContent className='space-y-2'>
                 <p>
@@ -88,6 +98,43 @@ export default function HoldingDetailsPanel({
                         )}
                     </p>
                 )}
+                <div className='flex gap-3 border-t pt-4 justify-around'>
+                    <Button
+                        className='flex-1'
+                        disabled={
+                            isLoading || error !== null || currentPrice === null
+                        }
+                        onClick={() => {
+                            if (currentPrice === null) return;
+
+                            onOpenTrade({
+                                symbol: holding.symbol,
+                                price: currentPrice,
+                                mode: 'Buy',
+                            });
+                        }}
+                    >
+                        BUY
+                    </Button>
+                    <Button
+                        className='flex-1'
+                        variant={'outline'}
+                        disabled={
+                            isLoading || error !== null || currentPrice === null
+                        }
+                        onClick={() => {
+                            if (currentPrice === null) return;
+
+                            onOpenTrade({
+                                symbol: holding.symbol,
+                                price: currentPrice,
+                                mode: 'Sell',
+                            });
+                        }}
+                    >
+                        SELL
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );
