@@ -5,6 +5,7 @@ import TickerStrip from './components/TickerStrip';
 import PortfolioPanel from './components/PortfolioPanel';
 import HoldingDetailsPanel from './components/HoldingDetailsPanel';
 import TradePanel from './components/TradePanel';
+import TradeHistoryPanel from './components/TradeHistoryPanel';
 
 function App() {
     const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
@@ -56,6 +57,7 @@ function App() {
                             loadPortfolio={loadPortfolio}
                             onSelectHolding={setSelectedSymbol}
                         />
+                        <TradeHistoryPanel />
                         {tradeSelection && (
                             <TradePanel
                                 key={`${tradeSelection.symbol}-${tradeSelection.mode}`}

@@ -3,13 +3,20 @@ package dev.brandon.papertradingapi.service;
 import dev.brandon.papertradingapi.model.Account;
 import dev.brandon.papertradingapi.model.Holding;
 import dev.brandon.papertradingapi.model.SellPreview;
+import dev.brandon.papertradingapi.model.Trade;
+import dev.brandon.papertradingapi.model.TradeResponse;
+import dev.brandon.papertradingapi.model.TradeType;
 import dev.brandon.papertradingapi.repository.AccountRepository;
 import dev.brandon.papertradingapi.repository.HoldingRepository;
+import dev.brandon.papertradingapi.repository.TradeRepository;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -17,12 +24,36 @@ import java.util.Optional;
 public class TradingService {
     private final AccountRepository accountRepository;
     private final HoldingRepository holdingRepository;
+    private final TradeRepository tradeRepository;
     private final StockService stockService;
 
-    public TradingService(AccountRepository accountRepository, HoldingRepository holdingRepository, StockService stockService) {
+    public TradingService(AccountRepository accountRepository, HoldingRepository holdingRepository, StockService stockService, TradeRepository tradeRepository) {
         this.accountRepository = accountRepository;
         this.stockService = stockService;
         this.holdingRepository = holdingRepository;
+        this.tradeRepository = tradeRepository;
+    }
+
+    public List<TradeResponse> getTradeHistory(Long accountId) {
+        Account account = accountRepository.findById(accountId).orElseThrow();
+        List<Trade> tradeHistory =  tradeRepository.findByAccountOrderByExecutedAtDesc(account);
+
+        List<TradeResponse> trades = new ArrayList<>();
+
+        for (Trade trade : tradeHistory) {
+            TradeResponse response = new TradeResponse(
+                trade.getId(),
+                trade.getSymbol(),
+                trade.getType(),
+                trade.getQuantity(),
+                trade.getExecutionPrice(),
+                trade.getRealizedPL(),
+                trade.getExecutedAt()
+            );
+            trades.add(response);
+        }
+
+        return trades;
     }
 
     @Transactional
@@ -69,9 +100,13 @@ public class TradingService {
                 purchasedHolding = newHolding;
             }
 
+            
+
             BigDecimal newAccountBalance = accountBalance.subtract(orderCost);
             account.setCashBalance(newAccountBalance);
+            Trade trade = new Trade(account, symbol, TradeType.BUY, quantity, currentPrice, null);
 
+            tradeRepository.save(trade);
             accountRepository.save(account);
             return purchasedHolding;
         }
@@ -108,8 +143,15 @@ public class TradingService {
                 holdingRepository.delete(existingHolding);
             }
 
+            BigDecimal realizedPL = currentPrice
+            .subtract(existingHolding.getAverageCost())
+            .multiply(quantity);
+
 
             account.setCashBalance(account.getCashBalance().add(saleProceeds));
+            Trade trade = new Trade(account, symbol, TradeType.SELL, quantity, currentPrice, realizedPL);
+            
+            tradeRepository.save(trade);
 
             accountRepository.save(account);
 
@@ -149,4 +191,5 @@ public class TradingService {
             throw new IllegalArgumentException("You do not own this stock");
         }
     }
+
 }

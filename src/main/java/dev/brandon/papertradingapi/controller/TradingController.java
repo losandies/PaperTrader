@@ -2,12 +2,13 @@ package dev.brandon.papertradingapi.controller;
 
 import dev.brandon.papertradingapi.model.Holding;
 import dev.brandon.papertradingapi.model.SellPreview;
-import dev.brandon.papertradingapi.service.AccountService;
+import dev.brandon.papertradingapi.model.TradeResponse;
 import dev.brandon.papertradingapi.service.TradingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 public class TradingController {
@@ -31,5 +32,10 @@ public class TradingController {
     public ResponseEntity<SellPreview> previewSale(@PathVariable Long id, @RequestParam String symbol, @RequestParam BigDecimal quantity) {
         return ResponseEntity.ok(tradingService.previewSale(id, symbol, quantity));
 
+    }
+
+    @GetMapping("accounts/{id}/trades")
+    public ResponseEntity<List<TradeResponse>> getTradeHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(tradingService.getTradeHistory(id));
     }
 }

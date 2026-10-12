@@ -44,3 +44,13 @@ export type TradeSelection = {
     maxSell?: number;
     mode: 'Buy' | 'Sell';
 };
+
+export type Trade = {
+    id: number;
+    symbol: string;
+    type: 'BUY' | 'SELL';
+    quantity: number;
+    executionPrice: number;
+    executedAt: string;
+    realizedPL: number | null;
+};
