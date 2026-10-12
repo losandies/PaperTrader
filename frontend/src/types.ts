@@ -41,5 +41,6 @@ export type TickerPrice = {
 export type TradeSelection = {
     symbol: string;
     price: number;
+    maxSell?: number;
     mode: 'Buy' | 'Sell';
 };

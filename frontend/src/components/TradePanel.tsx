@@ -88,43 +88,62 @@ export default function TradePanel({
                             Reference price per share
                         </p>
                     </div>
-                    <div className='flex shrink-0 items-center gap-6'>
-                        <div className='flex flex-col'>
-                            <button
-                                type='button'
-                                aria-label='Increase quantity'
-                                className='flex h-6 w-9 items-center justify-center p-0 cursor-pointer'
-                                onClick={() => setQuantity((q) => q + 1)}
-                                disabled={isBusy}
+                    <div className='relative shrink-0'>
+                        <div className='flex items-center'>
+                            <div className='flex flex-col'>
+                                <button
+                                    type='button'
+                                    aria-label='Increase quantity'
+                                    className='flex h-6 w-9 items-center justify-center p-0 cursor-pointer'
+                                    onClick={() => setQuantity((q) => q + 1)}
+                                    disabled={isBusy}
+                                >
+                                    <RxCaretUp className='text-4xl text-gray-300 hover:text-foreground' />
+                                </button>
+                                <button
+                                    type='button'
+                                    aria-label='Decrease quantity'
+                                    className='flex h-6 w-9 items-center justify-center p-0 cursor-pointer'
+                                    onClick={() =>
+                                        setQuantity((q) => Math.max(1, q - 1))
+                                    }
+                                    disabled={isBusy}
+                                >
+                                    <RxCaretDown className='text-4xl text-gray-300 hover:text-foreground' />
+                                </button>
+                            </div>
+                            <p
+                                className='text-3xl w-20 shrink-0 text-center tabular-nums'
+                                aria-label={`${quantity} shares`}
                             >
-                                <RxCaretUp className='text-4xl text-gray-300 hover:text-foreground' />
-                            </button>
-                            <button
-                                type='button'
-                                aria-label='Decrease quantity'
-                                className='flex h-6 w-9 items-center justify-center p-0 cursor-pointer'
-                                onClick={() =>
-                                    setQuantity((q) => Math.max(1, q - 1))
-                                }
+                                {quantity}
+                            </p>
+                            <Button
+                                variant='outline'
+                                className='w-18 h-10'
                                 disabled={isBusy}
+                                onClick={openPreview}
                             >
-                                <RxCaretDown className='text-4xl text-gray-300 hover:text-foreground' />
-                            </button>
+                                {selection.mode.toUpperCase()}
+                            </Button>
                         </div>
-                        <p
-                            className='text-3xl'
-                            aria-label={`${quantity} shares`}
-                        >
-                            {quantity}
-                        </p>
-                        <Button
-                            variant='outline'
-                            className='w-18 h-10 ml-2'
-                            disabled={isBusy}
-                            onClick={openPreview}
-                        >
-                            {selection.mode.toUpperCase()}
-                        </Button>
+                        {selection.mode === 'Sell' && (
+                            <Button
+                                className='absolute top-full left-0 mt-2 w-full'
+                                disabled={
+                                    isBusy || selection.maxSell === undefined
+                                }
+                                onClick={() => {
+                                    if (selection.maxSell === undefined) return;
+                                    previewSell(
+                                        selection.symbol,
+                                        selection.maxSell,
+                                    );
+                                }}
+                            >
+                                Sell All
+                            </Button>
+                        )}
                     </div>
                 </div>
                 {sellPreview === null && sellError !== null && (

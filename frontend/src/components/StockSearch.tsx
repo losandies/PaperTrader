@@ -12,13 +12,19 @@ type StockSearchProps = {
 };
 
 export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
-    const { previewBuy, buyStock, buyPreview, cancelPreview, tradeError, isBuying } = useBuyStock(onTradeSuccess);
+    const {
+        previewBuy,
+        buyStock,
+        buyPreview,
+        cancelPreview,
+        tradeError,
+        isBuying,
+    } = useBuyStock(onTradeSuccess);
 
     const [symbol, setSymbol] = useState<string>('');
     const [quote, setQuote] = useState<StockQuote | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [quantity, setQuantity] = useState<number>(1);
-
 
     const lookupStock = (): void => {
         setError(null);
@@ -141,12 +147,18 @@ export default function StockSearch({ onTradeSuccess }: StockSearchProps) {
                                         <RxCaretDown className='text-4xl text-gray-300 hover:text-black' />
                                     </button>
                                 </div>
-                                <h2 className='text-3xl'>{quantity}</h2>
+                                <h2 className='text-3xl w-20 shrink-0 text-center tabular-nums'>
+                                    {quantity}
+                                </h2>
                                 <Button
                                     variant={'outline'}
                                     className='w-18 h-10 ml-2 cursor-pointer'
                                     onClick={() => {
-                                        previewBuy(quote.symbol, quantity, quote.close);
+                                        previewBuy(
+                                            quote.symbol,
+                                            quantity,
+                                            quote.close,
+                                        );
                                     }}
                                 >
                                     BUY
