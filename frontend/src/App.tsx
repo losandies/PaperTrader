@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Portfolio, TradeSelection } from './types';
+import type { Portfolio, Trade, TradeSelection } from './types';
 import StockSearch from './components/StockSearch';
 import TickerStrip from './components/TickerStrip';
 import PortfolioPanel from './components/PortfolioPanel';
@@ -14,6 +14,9 @@ function App() {
     const [tradeSelection, setTradeSelection] = useState<TradeSelection | null>(
         null,
     );
+    const [trades, setTrades] = useState<Trade[]>([]);
+    const [isTradeHistoryLoading, setIsTradeHistoryLoading] = useState(true);
+    const [historyError, setHistoryError] = useState<string | null>(null);
 
     const loadPortfolio = (): void => {
         fetch('http://localhost:8080/accounts/1/portfolio')
@@ -31,7 +34,40 @@ function App() {
             .catch(() => setError('Unable to load portfolio'));
     };
 
-    useEffect(() => loadPortfolio(), []);
+    const loadTradeHistory = (): void => {
+        fetch('http://localhost:8080/accounts/1/trades')
+            .then((response) => {
+                if (!response.ok) {
+                    return response.text().then((message) => {
+                        throw new Error(
+                            message || 'Could not get trade history',
+                        );
+                    });
+                }
+                return response.json();
+            })
+            .then((data) => setTrades(data))
+            .catch((error: unknown) => {
+                setHistoryError(
+                    error instanceof Error
+                        ? error.message
+                        : 'Could not get trade history',
+                );
+            })
+            .finally(() => setIsTradeHistoryLoading(false));
+    };
+
+    const handleTradeSuccess = (): void => {
+        setIsTradeHistoryLoading(true);
+        setHistoryError(null);
+        loadPortfolio();
+        loadTradeHistory();
+    };
+
+    useEffect(() => {
+        loadPortfolio();
+        loadTradeHistory();
+    }, []);
 
     if (error != null) {
         return <p>{error}</p>;
@@ -57,18 +93,22 @@ function App() {
                             loadPortfolio={loadPortfolio}
                             onSelectHolding={setSelectedSymbol}
                         />
-                        <TradeHistoryPanel />
+                        <TradeHistoryPanel
+                            trades={trades}
+                            isTradeHistoryLoading={isTradeHistoryLoading}
+                            historyError={historyError}
+                        />
                         {tradeSelection && (
                             <TradePanel
                                 key={`${tradeSelection.symbol}-${tradeSelection.mode}`}
                                 selection={tradeSelection}
                                 onClose={() => setTradeSelection(null)}
-                                onTradeSuccess={loadPortfolio}
+                                onTradeSuccess={handleTradeSuccess}
                             />
                         )}
                     </div>
                     <div className='space-y-6'>
-                        <StockSearch onTradeSuccess={loadPortfolio} />
+                        <StockSearch onTradeSuccess={handleTradeSuccess} />
                         {selectedHolding && (
                             <HoldingDetailsPanel
                                 holding={selectedHolding}
