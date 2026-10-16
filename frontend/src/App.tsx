@@ -93,11 +93,13 @@ function App() {
                             loadPortfolio={loadPortfolio}
                             onSelectHolding={setSelectedSymbol}
                         />
-                        <TradeHistoryPanel
-                            trades={trades}
-                            isTradeHistoryLoading={isTradeHistoryLoading}
-                            historyError={historyError}
-                        />
+                        {selectedHolding && (
+                            <HoldingDetailsPanel
+                                holding={selectedHolding}
+                                key={selectedHolding.symbol}
+                                onOpenTrade={setTradeSelection}
+                            />
+                        )}
                         {tradeSelection && (
                             <TradePanel
                                 key={`${tradeSelection.symbol}-${tradeSelection.mode}`}
@@ -108,14 +110,12 @@ function App() {
                         )}
                     </div>
                     <div className='space-y-6'>
+                        <TradeHistoryPanel
+                            trades={trades}
+                            isTradeHistoryLoading={isTradeHistoryLoading}
+                            historyError={historyError}
+                        />
                         <StockSearch onTradeSuccess={handleTradeSuccess} />
-                        {selectedHolding && (
-                            <HoldingDetailsPanel
-                                holding={selectedHolding}
-                                key={selectedHolding.symbol}
-                                onOpenTrade={setTradeSelection}
-                            />
-                        )}
                     </div>
                 </div>
             </div>
