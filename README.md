@@ -4,9 +4,7 @@ A full-stack stock trading simulator built with Spring Boot, PostgreSQL, React, 
 
 ## Demo
 
-Video walkthrough coming soon.
-
-The demo will cover stock lookup, purchase confirmation, holding performance, selling shares, and transaction history.
+https://github.com/user-attachments/assets/9c21db58-9564-49c0-ae3f-4a2ef1801b63
 
 ## Features
 
